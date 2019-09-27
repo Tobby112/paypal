@@ -555,6 +555,20 @@ type (
 		Address      *ShippingDetailAddressPortable `json:"address,omitempty"`
 	}
 
+	VerifyWebhookRequest struct {
+		Alg             string      `json:"auth_algo"`
+		CertURL         string      `json:"cert_url"`
+		TransmissionID  string      `json:"transmission_id"`
+		TransmissionSig string      `json:"transmission_sig"`
+		TranmissionTime string      `json:"transmission_time"`
+		WebhookID       string      `json:"webhook_id"`
+		WebhookEvent    interface{} `json:"webhook_event"`
+	}
+
+	VerifyWebhookResult struct {
+		VerificationStatus string `json:"verification_status"`
+	}
+
 	// PurchaseUnitRequest struct
 	PurchaseUnitRequest struct {
 		ReferenceID    string              `json:"reference_id,omitempty"`
@@ -610,6 +624,30 @@ type (
 		PlatformFees                  []PlatformFee `json:"platform_fees,omitempty"`
 	}
 	
+	// CapturedPurchaseUnit are purchase units for a captured order
+	CapturedPurchaseUnitWithStatus struct {
+		ReferenceID string                      `json:"reference_id,omitempty"`
+		Payments    *CapturedPaymentsWithStatus `json:"payments,omitempty"`
+	}
+
+	CapturedPaymentsWithStatus struct {
+		Captures []CaptureAmountWithStatus `json:"captures,omitempty"`
+	}
+
+	CaptureAmountWithStatus struct {
+		ID       string              `json:"id,omitempty"`
+		Status   string              `json:"status,omitempty"`
+		CustomID string              `json:"custom_id,omitempty"`
+		Amount   *PurchaseUnitAmount `json:"amount,omitempty"`
+	}
+
+	CaptureOrderWithPaymentStatus struct {
+		ID            string                           `json:"id,omitempty"`
+		Status        string                           `json:"status,omitempty"`
+		Payer         *PayerWithNameAndPhone           `json:"payer,omitempty"`
+		PurchaseUnits []CapturedPurchaseUnitWithStatus `json:"purchase_units,omitempty"`
+	}
+
 	// CaptureAmount struct
 	CaptureAmount struct {
 		ID                        string                     `json:"id,omitempty"`

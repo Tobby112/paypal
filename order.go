@@ -1,11 +1,30 @@
 package paypal
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"net/http"
+)
 
 // GetOrder retrieves order by ID
 // Endpoint: GET /v2/checkout/orders/ID
 func (c *Client) GetOrder(orderID string) (*Order, error) {
 	order := &Order{}
+
+	req, err := c.NewRequest("GET", fmt.Sprintf("%s%s%s", c.APIBase, "/v2/checkout/orders/", orderID), nil)
+	if err != nil {
+		return order, err
+	}
+
+	if err = c.SendWithAuth(req, order); err != nil {
+		return order, err
+	}
+
+	return order, nil
+}
+
+func (c *Client) GetCaptureOrder(orderID string) (*CaptureOrderWithPaymentStatus, error) {
+	order := &CaptureOrderWithPaymentStatus{}
 
 	req, err := c.NewRequest("GET", fmt.Sprintf("%s%s%s", c.APIBase, "/v2/checkout/orders/", orderID), nil)
 	if err != nil {
@@ -41,6 +60,22 @@ func (c *Client) CreateOrder(intent string, purchaseUnits []PurchaseUnitRequest,
 	}
 
 	return order, nil
+}
+
+// CreateOrder - Use this call to create an order
+// Endpoint: POST /v2/checkout/orders
+func (c *Client) VerifyWebhook(verifyBody string) (*VerifyWebhookResult, error) {
+	result := &VerifyWebhookResult{}
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s", c.APIBase, "/v1/notifications/verify-webhook-signature"), bytes.NewBuffer([]byte(verifyBody)))
+	if err != nil {
+		return result, err
+	}
+
+	if err = c.SendWithAuth(req, result); err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
 // UpdateOrder updates the order by ID
